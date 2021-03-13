@@ -17,15 +17,15 @@ def greedy_cycle(distance_matrix):
     
     which_cycle=0
     while unused_vertex != []:
-        cycle=cycle1 if which_cycle%2==0 else cycle=cycle2
+        cycle=cycle1 if which_cycle%2==0 else cycle2
         smallest_lenght_increase=np.inf
         best_insert_idx=-1
         best_vertex=-1
         for split_idx in range(len(cycle)):
-            curr_distance=distance_matrix[split_idx-1,split_idx]
+            curr_distance=distance_matrix[cycle[split_idx-1],cycle[split_idx]]
             for vertex in unused_vertex:
-                distance1=distance_matrix[vertex,split_idx]
-                distance2=distance_matrix[vertex,split_idx-1]
+                distance1=distance_matrix[vertex,cycle[split_idx]]
+                distance2=distance_matrix[vertex,cycle[split_idx-1]]
                 new_distance=distance1+distance2
                 if new_distance - curr_distance < smallest_lenght_increase:
                     smallest_lenght_increase = new_distance - curr_distance
