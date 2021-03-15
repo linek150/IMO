@@ -2,12 +2,13 @@ import numpy as np
 
     
 
-def greedy_cycle(distance_matrix):
+def greedy_cycle(distance_matrix,start_vertex_1=None):
     unused_vertex=list(range(distance_matrix.shape[0]))
-    start_vertex_1=np.random.choice(distance_matrix.shape[0])
-    start_vertex_2=np.argmax(distance_matrix[start_vertex_1])
+    if start_vertex_1==None:
+        start_vertex_1=np.random.choice(distance_matrix.shape[0])
     cycle1=[start_vertex_1]
     unused_vertex.remove(start_vertex_1)
+    start_vertex_2=unused_vertex[np.argmax(distance_matrix[start_vertex_1,[unused_vertex]])]
     cycle2=[start_vertex_2]
     unused_vertex.remove(start_vertex_2) 
     cycle1.append(unused_vertex[np.argmin(distance_matrix[start_vertex_1,unused_vertex])])

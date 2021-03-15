@@ -9,8 +9,9 @@ def find_closest_vertex(distance_matrix, vertex, cycle_1, cycle_2):
     return np.argmin(distance_matrix[vertex])
 
 
-def nearest_neighbor_method(distance_matrix):
-    start_vertex_1 = np.random.choice(distance_matrix.shape[0])
+def nearest_neighbor_method(distance_matrix,start_vertex_1=None):
+    if start_vertex_1==None:
+        start_vertex_1 = np.random.choice(distance_matrix.shape[0])
     start_vertex_2 = np.argmax(distance_matrix[start_vertex_1])
     cycle_1 = [start_vertex_1]
     cycle_2 = [start_vertex_2]
