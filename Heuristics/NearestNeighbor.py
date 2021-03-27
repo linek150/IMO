@@ -1,12 +1,14 @@
 import numpy as np
-from CreateDistanceMatrix import create_distance_matrix, load_data_from_file
-from Visualize import plot_results
+import copy
+# from CreateDistanceMatrix import create_distance_matrix, load_data_from_file
+# from Visualize import plot_results
 
 
 def find_closest_vertex(distance_matrix, vertex, cycle_1, cycle_2):
-    distance_matrix[vertex, cycle_1] = np.inf
-    distance_matrix[vertex, cycle_2] = np.inf
-    return np.argmin(distance_matrix[vertex])
+    distance_matrix_copy = copy.deepcopy(distance_matrix)
+    distance_matrix_copy[vertex, cycle_1] = np.inf
+    distance_matrix_copy[vertex, cycle_2] = np.inf
+    return np.argmin(distance_matrix_copy[vertex])
 
 
 def nearest_neighbor_method(distance_matrix,start_vertex_1=None):
