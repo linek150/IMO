@@ -5,8 +5,6 @@ import numpy as np
 # from Heuristics.Visualize import plot_results
 # from Heuristics.NearestNeighbor import nearest_neighbor_method
 
-# TODO Exchanges between cycles
-
 
 def cycle_length(cycle, distance_matrix):
     length = 0
@@ -83,6 +81,39 @@ def improve_cycle(cycle, distance_matrix):
     return cycle
 
 
+def get_best_vertices_swap_between_cycles(cycle_1, cycle_2, distance_matrix):
+    best_cycles_with_swap = (None, None)
+    best_swap_length_sum = np.inf
+    for idx_1 in range(len(cycle_1)):
+        for idx_2 in range(len(cycle_2)):
+            cycle_1_with_swap = copy.deepcopy(cycle_1)
+            cycle_2_with_swap = copy.deepcopy(cycle_2)
+            cycle_1_with_swap[idx_1], cycle_2_with_swap[idx_2] = cycle_2_with_swap[idx_2], cycle_1_with_swap[idx_1]
+            cycle_1_with_swap_length = cycle_length(cycle_1_with_swap, distance_matrix)
+            cycle_2_with_swap_length = cycle_length(cycle_2_with_swap, distance_matrix)
+            if cycle_1_with_swap_length + cycle_2_with_swap_length < best_swap_length_sum:
+                best_swap_length_sum = cycle_1_with_swap_length + cycle_2_with_swap_length
+                best_cycles_with_swap = (cycle_1_with_swap, cycle_2_with_swap)
+    return best_swap_length_sum, best_cycles_with_swap
+
+
+def improve_cycle_with_vertex_exchanges_between_cycles(cycle_1, cycle_2, distance_matrix):
+
+    cycle_stop = False
+
+    while not cycle_stop:
+
+        best_vertices_swap_length, best_cycle_with_vertices_swap = \
+            get_best_vertices_swap_between_cycles(cycle_1, cycle_2, distance_matrix)
+
+        if best_vertices_swap_length < cycle_length(cycle_1, distance_matrix) + cycle_length(cycle_2, distance_matrix):
+            cycle_1, cycle_2 = best_cycle_with_vertices_swap
+        else:
+            cycle_stop = True
+
+    return cycle_1, cycle_2
+
+
 def steepest_local_search(cycle_1, cycle_2, distance_matrix, method=0):
     """
 
@@ -97,7 +128,7 @@ def steepest_local_search(cycle_1, cycle_2, distance_matrix, method=0):
         cycle_1 = improve_cycle(cycle_1, distance_matrix)
         cycle_2 = improve_cycle(cycle_2, distance_matrix)
     if method == 1:
-        raise NotImplementedError()
+        cycle_1, cycle_2 = improve_cycle_with_vertex_exchanges_between_cycles(cycle_1, cycle_2, distance_matrix)
 
     return cycle_1, cycle_2
 
