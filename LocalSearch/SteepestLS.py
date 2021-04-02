@@ -36,7 +36,7 @@ def get_best_edges_swap(cycle, distance_matrix):
                 cycle_with_swap = copy.deepcopy(cycle)
                 cycle_with_swap[edge_1[0]+1:edge_2[0]+1] = cycle_with_swap[edge_1[0]+1:edge_2[0]+1][::-1]
                 cycle_with_swap_length = cycle_length(cycle_with_swap, distance_matrix)
-                if cycle_with_swap_length < best_swap_length:
+                if best_swap_length - cycle_with_swap_length > 0:
                     best_swap_length = cycle_with_swap_length
                     best_cycle_with_swap = cycle_with_swap
     return best_swap_length, best_cycle_with_swap
@@ -51,34 +51,54 @@ def get_best_vertices_swap(cycle, distance_matrix):
                 cycle_with_swap = copy.deepcopy(cycle)
                 cycle_with_swap[idx_1], cycle_with_swap[idx_2] = cycle_with_swap[idx_2], cycle_with_swap[idx_1]
                 cycle_with_swap_length = cycle_length(cycle_with_swap, distance_matrix)
-                if cycle_with_swap_length < best_swap_length:
+                if best_swap_length - cycle_with_swap_length > 0:
                     best_swap_length = cycle_with_swap_length
                     best_cycle_with_swap = cycle_with_swap
     return best_swap_length, best_cycle_with_swap
 
 
-def improve_cycle(cycle, distance_matrix):
+def improve_cycles(cycle_1, cycle_2, distance_matrix, method):
 
     cycle_stop = False
+    pick_cycle = 0
 
     while not cycle_stop:
 
-        best_vertices_swap_length, best_cycle_with_vertices_swap = get_best_vertices_swap(cycle, distance_matrix)
-        best_edges_swap_length, best_cycle_with_edges_swap = get_best_edges_swap(cycle, distance_matrix)
+        best_swap_vertices_or_edges = (None, None)
 
-        if best_vertices_swap_length < best_edges_swap_length:
-            best_length = best_vertices_swap_length
-            best_cycle = best_cycle_with_vertices_swap
+        if pick_cycle % 2 == 0:
+            cycle = cycle_1
+            other_cycle = cycle_2
         else:
-            best_length = best_edges_swap_length
-            best_cycle = best_cycle_with_edges_swap
+            cycle = cycle_2
+            other_cycle = cycle_1
 
-        if best_length < cycle_length(cycle, distance_matrix):
-            cycle = best_cycle
+        if method == 0:
+            best_swap_vertices_or_edges = get_best_vertices_swap(cycle, distance_matrix)
+        elif method == 1:
+            best_swap_vertices_or_edges = get_best_edges_swap(cycle, distance_matrix)
+
+        best_swap_between_length, best_swap_between_cycles = \
+            get_best_vertices_swap_between_cycles(cycle_1, cycle_2, distance_matrix)
+
+        if (best_swap_vertices_or_edges[0] + cycle_length(other_cycle, distance_matrix)) - best_swap_between_length > 0:
+            best_length = best_swap_between_length
+            best_cycles = best_swap_between_cycles
+        else:
+            best_length = best_swap_vertices_or_edges[0] + cycle_length(other_cycle, distance_matrix)
+            if pick_cycle % 2 == 0:
+                best_cycles = (best_swap_vertices_or_edges[1], other_cycle)
+            else:
+                best_cycles = (other_cycle, best_swap_vertices_or_edges[1])
+
+        if (cycle_length(cycle_1, distance_matrix) + cycle_length(cycle_2, distance_matrix)) - best_length > 0:
+            cycle_1, cycle_2 = best_cycles
         else:
             cycle_stop = True
 
-    return cycle
+        pick_cycle += 1
+
+    return cycle_1, cycle_2
 
 
 def get_best_vertices_swap_between_cycles(cycle_1, cycle_2, distance_matrix):
@@ -91,44 +111,24 @@ def get_best_vertices_swap_between_cycles(cycle_1, cycle_2, distance_matrix):
             cycle_1_with_swap[idx_1], cycle_2_with_swap[idx_2] = cycle_2_with_swap[idx_2], cycle_1_with_swap[idx_1]
             cycle_1_with_swap_length = cycle_length(cycle_1_with_swap, distance_matrix)
             cycle_2_with_swap_length = cycle_length(cycle_2_with_swap, distance_matrix)
-            if cycle_1_with_swap_length + cycle_2_with_swap_length < best_swap_length_sum:
+            if best_swap_length_sum - (cycle_1_with_swap_length + cycle_2_with_swap_length) > 0:
                 best_swap_length_sum = cycle_1_with_swap_length + cycle_2_with_swap_length
                 best_cycles_with_swap = (cycle_1_with_swap, cycle_2_with_swap)
     return best_swap_length_sum, best_cycles_with_swap
 
 
-def improve_cycle_with_vertex_exchanges_between_cycles(cycle_1, cycle_2, distance_matrix):
-
-    cycle_stop = False
-
-    while not cycle_stop:
-
-        best_vertices_swap_length, best_cycle_with_vertices_swap = \
-            get_best_vertices_swap_between_cycles(cycle_1, cycle_2, distance_matrix)
-
-        if best_vertices_swap_length < cycle_length(cycle_1, distance_matrix) + cycle_length(cycle_2, distance_matrix):
-            cycle_1, cycle_2 = best_cycle_with_vertices_swap
-        else:
-            cycle_stop = True
-
-    return cycle_1, cycle_2
-
-
-def steepest_local_search(cycle_1, cycle_2, distance_matrix, method=0):
+def steepest_local_search(cycle_1, cycle_2, distance_matrix, method):
     """
 
     :param cycle_1_initial:
     :param cycle_2_initial:
     :param distance_matrix:
-    :param method: 1 -> exchanges between cycles, 0 -> exchanges within cycles
+    :param method: 1 -> exchanges of edges within cycles and exchanges of verices between cycles,
+    0 -> exchanges of verices within cycles and exchanges of verices between cycles
     :return:
     """
 
-    if method == 0:
-        cycle_1 = improve_cycle(cycle_1, distance_matrix)
-        cycle_2 = improve_cycle(cycle_2, distance_matrix)
-    if method == 1:
-        cycle_1, cycle_2 = improve_cycle_with_vertex_exchanges_between_cycles(cycle_1, cycle_2, distance_matrix)
+    cycle_1, cycle_2 = improve_cycles(cycle_1, cycle_2, distance_matrix, method)
 
     return cycle_1, cycle_2
 
