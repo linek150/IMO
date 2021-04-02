@@ -11,8 +11,9 @@ def plot_cycle(xs, ys, cycle, color):
             plt.plot([xs[cycle[idx]], xs[cycle[0]]], [ys[cycle[idx]], ys[cycle[0]]], color)
 
 
-def plot_results(xs, ys, cycle_1, cycle_2):
+def plot_results(xs, ys, cycle_1, cycle_2,title=None):
     plt.rcParams["figure.figsize"] = (20, 15)
     plot_cycle(xs, ys, cycle_1, 'r')
     plot_cycle(xs, ys, cycle_2, 'b')
+    if not(title is None):plt.title(title)
     plt.show()

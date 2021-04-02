@@ -93,17 +93,6 @@ def try_to_improve(cyc1,cyc2,dist_m,method):
         if improved: break
         move=(move+1)%2
     return delta,improved,cyc1,cyc2   
-def cycle_length(cycle, distance_matrix):
-    length = 0
-    lengths = []
-    for idx in range(len(cycle)):
-        if idx - 1 < 0:
-            length += distance_matrix[cycle[-1]][cycle[idx]]
-            lengths.append(distance_matrix[cycle[-1]][cycle[idx]])
-        else:
-            length += distance_matrix[cycle[idx-1]][cycle[idx]]
-            lengths.append(distance_matrix[cycle[idx-1]][cycle[idx]])
-    return length
 
 def greedy_ls(cyc1,cyc2,dist_m,method=VERTECIES):
     imp_cycs=[np.copy(cyc1),np.copy(cyc2)]
