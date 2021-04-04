@@ -54,6 +54,8 @@ def get_random_edges_swap(cycle, distance_matrix):
 
 def improve_cycles_randomly(cycle_1, cycle_2, distance_matrix, runtime):
 
+    best_found_cycles = (cycle_1, cycle_2)
+
     cycle_stop = False
     pick_cycle = 0
     start = time.time()
@@ -62,44 +64,38 @@ def improve_cycles_randomly(cycle_1, cycle_2, distance_matrix, runtime):
 
         if pick_cycle % 2 == 0:
             cycle = cycle_1
-            other_cycle = cycle_2
         else:
             cycle = cycle_2
-            other_cycle = cycle_1
 
-        best_swap_vertices = get_random_vertices_swap(cycle, distance_matrix)
-        best_swap_edges = get_random_edges_swap(cycle, distance_matrix)
+        pick_method = np.random.choice(3, 1)[0]
 
-        best_swap_between_length, best_swap_between_cycles = \
-            get_random_vertices_swap_between_cycles(cycle_1, cycle_2, distance_matrix)
-
-        if (best_swap_edges[0] + cycle_length(other_cycle, distance_matrix)) - \
-                (best_swap_vertices[0] + cycle_length(other_cycle, distance_matrix)) > 0:
-            best_length = best_swap_vertices[0] + cycle_length(other_cycle, distance_matrix)
+        if pick_method == 0:
+            best_swap_vertices = get_random_vertices_swap(cycle, distance_matrix)
             if pick_cycle % 2 == 0:
-                best_cycles = (best_swap_vertices[1], other_cycle)
+                cycle_1 = best_swap_vertices[1]
             else:
-                best_cycles = (other_cycle, best_swap_vertices[1])
+                cycle_2 = best_swap_vertices[1]
+        elif pick_method == 1:
+            best_swap_edges = get_random_edges_swap(cycle, distance_matrix)
+            if pick_cycle % 2 == 0:
+                cycle_1 = best_swap_edges[1]
+            else:
+                cycle_2 = best_swap_edges[1]
         else:
-            best_length = best_swap_edges[0] + cycle_length(other_cycle, distance_matrix)
-            if pick_cycle % 2 == 0:
-                best_cycles = (best_swap_edges[1], other_cycle)
-            else:
-                best_cycles = (other_cycle, best_swap_edges[1])
+            best_swap_between_length, best_swap_between_cycles = \
+                get_random_vertices_swap_between_cycles(cycle_1, cycle_2, distance_matrix)
+            cycle_1, cycle_2 = best_swap_between_cycles
 
-        if best_length - best_swap_between_length > 0:
-            best_length = best_swap_between_length
-            best_cycles = best_swap_between_cycles
-
-        if (cycle_length(cycle_1, distance_matrix) + cycle_length(cycle_2, distance_matrix)) - best_length > 0:
-            cycle_1, cycle_2 = best_cycles
+        if (cycle_length(best_found_cycles[0], distance_matrix) + cycle_length(best_found_cycles[1], distance_matrix)) - \
+                (cycle_length(cycle_1, distance_matrix) + cycle_length(cycle_2, distance_matrix)) > 0:
+            best_found_cycles = (cycle_1, cycle_2)
 
         pick_cycle += 1
 
         if (time.time() - start) >= runtime:
             cycle_stop = True
 
-    return cycle_1, cycle_2
+    return best_found_cycles
 
 
 def random_local_search(cycle_1, cycle_2, distance_matrix, runtime):
