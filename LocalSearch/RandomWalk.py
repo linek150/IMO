@@ -98,7 +98,7 @@ def improve_cycles_randomly(cycle_1, cycle_2, distance_matrix, runtime):
     return best_found_cycles
 
 
-def random_local_search(cycle_1, cycle_2, distance_matrix, runtime):
+def random_local_search(cycle_1, cycle_2, distance_matrix, runtime=30):
 
     cycle_1, cycle_2 = improve_cycles_randomly(cycle_1, cycle_2, distance_matrix, runtime)
 

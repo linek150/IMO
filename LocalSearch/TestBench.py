@@ -3,7 +3,7 @@ from ..Common.CreateDistanceMatrix import load_data_from_file,create_distance_ma
 from ..Common.Visualize import plot_results
 from ..Heuristics.GreedyCycle import greedy_cycle
 from .SteepestLS import steepest_local_search
-from .RandomWalk import random_walk_method
+from .RandomWalk import random_local_search
 from .GreedyLS import greedy_ls
 import numpy as np
 import time as t
@@ -16,6 +16,7 @@ TIME=3
 CYCLES=4
 GLS="greedyLS"
 SLS="steepestLS"
+RW="randomWalk"
 def get_total_distance(cycles,distance_matrix):
     total_distance=0
     for cycle in cycles:
@@ -60,6 +61,7 @@ class Alg_results:
         print(self.name,"method:",method_no,"starting_point:",sp_no,"avg_res: ",_res.sum_res/_res.no_res,"best: ", _res.best_res,\
                     "worst: ",_res.worst_res,"time:avg,best,worst:",_res.sum_tm/_res.no_res,\
                     _res.best_tm,_res.worst_tm,"best delta:",_res.best_delta)
+
 def get_random_cycles(arr,n=2):
     np.random.shuffle(arr)
     cycle1=arr[:len(arr)//2]
@@ -69,14 +71,14 @@ def get_results(instance_filename):
     dist_m = create_distance_matrix(instance_filename)
     vertecis_arr=list(range(len(dist_m[0])))
     #crete structures for all algorithm
-    algs=[greedy_ls,steepest_local_search]
+    algs=[greedy_ls,steepest_local_search,random_local_search]
     #worst,best,avrg,best_cycles
-    algs_res=[Alg_results(algs[i],name,2,2) for i,name in enumerate([GLS,SLS])]
-    for start_vertex in range(100):#range(len(dist_m[0])):
+    algs_res=[Alg_results(algs[i],name,2,2) for i,name in enumerate([GLS,SLS,RW])]
+    for start_vertex in range(2):#range(len(dist_m[0])):
         random_cycles=get_random_cycles(vertecis_arr)
         greedy_cycles=(greedy_cycle(dist_m,start_vertex))
         start_cycs=[random_cycles,greedy_cycles]
-        #2 algorithms
+        #3 algorithms
         for idx,alg_res in enumerate(algs_res):
             for sp_no,cycs in enumerate(start_cycs):    
                 for meth_no,method in enumerate([VERTECIES,EDGES]):
