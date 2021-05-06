@@ -1,14 +1,9 @@
 import copy
 import random
 import time
-
 import numpy as np
-
-from Common.CreateDistanceMatrix import load_data_from_file, create_distance_matrix
-from Common.Visualize import plot_results
-from Heuristics.GreedyCycle import greedy_cycle
 from LocalSearch.RandomWalk import cycle_length
-from LocalSearch.SteepestLS import ls_steepest
+from ImprovedLocalSearch.SteepestList import ls_steepest_list
 
 
 def find_closest_vertices(distance_matrix, vertex, k):
@@ -107,7 +102,7 @@ def ils1_perturbation(cycle_1, cycle_2, distance_matrix):
     return cycle_1, cycle_2
 
 
-def ils1_method(cycle_1, cycle_2, distance_matrix, runtime):
+def ils1_method(cycle_1, cycle_2, distance_matrix, runtime=5):
     cycle_1_with_updates = copy.deepcopy(cycle_1)
     cycle_2_with_updates = copy.deepcopy(cycle_2)
     best_cycles = (cycle_1, cycle_2)
@@ -115,8 +110,7 @@ def ils1_method(cycle_1, cycle_2, distance_matrix, runtime):
     start_time = time.time()
     while time.time() - start_time < runtime:
         cycle_1_with_updates, cycle_2_with_updates = ils1_perturbation(cycle_1_with_updates, cycle_2_with_updates, distance_matrix)
-        cycle_1_with_updates, cycle_2_with_updates = ls_steepest(cycle_1_with_updates, cycle_2_with_updates, distance_matrix)
-        cycle_1_with_updates, cycle_2_with_updates = cycle_1_with_updates.tolist(), cycle_2_with_updates.tolist()
+        cycle_1_with_updates, cycle_2_with_updates = ls_steepest_list(cycle_1_with_updates, cycle_2_with_updates, distance_matrix)
         cycles_length = cycle_length(cycle_1_with_updates, distance_matrix) + cycle_length(cycle_2_with_updates, distance_matrix)
         if cycles_length < best_cycles_length:
             best_cycles = (cycle_1_with_updates, cycle_2_with_updates)
