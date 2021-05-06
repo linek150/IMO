@@ -1,12 +1,13 @@
-from ..Heuristics.GreedyCycle import greedy_cycle
-from ..Common.CreateDistanceMatrix import load_data_from_file,create_distance_matrix
-from ..Common.Visualize import plot_results
-from ..Heuristics.GreedyCycle import greedy_cycle
-from .SteepestLS import steepest_local_search
-from .RandomWalk import random_local_search
-from .GreedyLS import greedy_ls
+from Heuristics.GreedyCycle import greedy_cycle
+from Common.CreateDistanceMatrix import load_data_from_file,create_distance_matrix
+from Common.Visualize import plot_results
+from Heuristics.GreedyCycle import greedy_cycle
+from SteepestLS import steepest_local_search
+from RandomWalk import random_local_search
+from GreedyLS import greedy_ls
 import numpy as np
 import time as t
+from tqdm import tqdm
 VERTECIES=0
 EDGES=1
 WORST=0
@@ -74,7 +75,7 @@ def get_results(instance_filename):
     algs=[greedy_ls,steepest_local_search,random_local_search]
     #worst,best,avrg,best_cycles
     algs_res=[Alg_results(algs[i],name,2,2) for i,name in enumerate([GLS,SLS,RW])]
-    for start_vertex in range(2):#range(len(dist_m[0])):
+    for start_vertex in tqdm(range(100)):#range(len(dist_m[0])):
         random_cycles=get_random_cycles(vertecis_arr)
         greedy_cycles=(greedy_cycle(dist_m,start_vertex))
         start_cycs=[random_cycles,greedy_cycles]
@@ -113,6 +114,6 @@ def run_test():
                 
 
 #method_dict_x method:[best_distance,worst_distance,avg_distamce,best_cycles]
-
+run_test()
 
 
