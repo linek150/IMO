@@ -15,6 +15,12 @@ def create_distance_matrix(filename):
     dist_matrix = np.round(distance_matrix(data_coordinates, data_coordinates), 0)
     return dist_matrix
 
+def get_coordinates(filename):
+    coordinates=load_data_from_file(filename)
+    xs = [coord[0] for coord in coordinates]
+    ys = [coord[1] for coord in coordinates]
+    return xs,ys
+
 
 # kroa = create_distance_matrix('kroA100.tsp')
 # krob = create_distance_matrix('kroB100.tsp')
