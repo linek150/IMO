@@ -1,6 +1,14 @@
 import copy
 import random
+import time
+
 import numpy as np
+
+from Common.CreateDistanceMatrix import load_data_from_file, create_distance_matrix
+from Common.Visualize import plot_results
+from Heuristics.GreedyCycle import greedy_cycle
+from LocalSearch.RandomWalk import cycle_length
+from LocalSearch.SteepestLS import ls_steepest
 
 
 def find_closest_vertices(distance_matrix, vertex, k):
@@ -98,6 +106,24 @@ def ils1_perturbation(cycle_1, cycle_2, distance_matrix):
 
     return cycle_1, cycle_2
 
+
+def ils1_method(cycle_1, cycle_2, distance_matrix, runtime):
+    cycle_1_with_updates = copy.deepcopy(cycle_1)
+    cycle_2_with_updates = copy.deepcopy(cycle_2)
+    best_cycles = (cycle_1, cycle_2)
+    best_cycles_length = cycle_length(cycle_1, distance_matrix) + cycle_length(cycle_2, distance_matrix)
+    start_time = time.time()
+    while time.time() - start_time < runtime:
+        cycle_1_with_updates, cycle_2_with_updates = ils1_perturbation(cycle_1_with_updates, cycle_2_with_updates, distance_matrix)
+        cycle_1_with_updates, cycle_2_with_updates = ls_steepest(cycle_1_with_updates, cycle_2_with_updates, distance_matrix)
+        cycle_1_with_updates, cycle_2_with_updates = cycle_1_with_updates.tolist(), cycle_2_with_updates.tolist()
+        cycles_length = cycle_length(cycle_1_with_updates, distance_matrix) + cycle_length(cycle_2_with_updates, distance_matrix)
+        if cycles_length < best_cycles_length:
+            best_cycles = (cycle_1_with_updates, cycle_2_with_updates)
+            best_cycles_length = cycles_length
+    return best_cycles
+
+
 # coordinates_a = load_data_from_file('../Heuristics/kroA100.tsp')
 # distance_matrix_a = create_distance_matrix('../Heuristics/kroA100.tsp')
 # cycle_1, cycle_2 = greedy_cycle(distance_matrix_a, start_vertex_1=None)
@@ -106,7 +132,7 @@ def ils1_perturbation(cycle_1, cycle_2, distance_matrix):
 # xs = [coord[0] for coord in coordinates_a]
 # ys = [coord[1] for coord in coordinates_a]
 # plot_results(xs, ys, cycle_1, cycle_2)
-# cycle_1_improved, cycle_2_improved = ils1_perturbation(cycle_1, cycle_2, distance_matrix_a)
+# cycle_1_improved, cycle_2_improved = ils1_method(cycle_1, cycle_2, distance_matrix_a, 5)
 # print(cycle_length(cycle_1_improved, distance_matrix_a))
 # print(cycle_length(cycle_2_improved, distance_matrix_a))
 # plot_results(xs, ys, cycle_1_improved, cycle_2_improved)
