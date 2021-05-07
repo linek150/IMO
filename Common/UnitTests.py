@@ -16,3 +16,12 @@ def random_start(algorithm_fun,instance_filename):
     length_after=get_total_distance(improved_cycs, dist_m)
     plot_results(xs, ys, improved_cycs[0], improved_cycs[1],"After alg")
     print(algorithm_fun.__name__," Final result: ",length_after, "Time:",stop-start,"[s]")
+def no_param_start(algorithm_fun,instance_filename):
+    dist_m = create_distance_matrix(instance_filename)
+    xs,ys=get_coordinates(instance_filename)
+    start=time.time()
+    improved_cycs=algorithm_fun(dist_m)
+    stop=time.time()
+    length_after=get_total_distance(improved_cycs, dist_m)
+    plot_results(xs, ys, improved_cycs[0], improved_cycs[1],"After alg")
+    print(algorithm_fun.__name__," Final result: ",length_after, "Time:",stop-start,"[s]")
