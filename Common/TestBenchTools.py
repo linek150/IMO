@@ -1,5 +1,8 @@
 import numpy as np
 
+from .CreateDistanceMatrix import load_data_from_file
+from .Visualize import plot_results
+
 def get_alg_results_struct(alg_fun_list):
     alg_names=[i.__name__ for i in alg_fun_list]
     alg_name_fun_list=zip(alg_names,alg_fun_list)
