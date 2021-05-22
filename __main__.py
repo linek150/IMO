@@ -6,7 +6,7 @@ print("Main starts...")
 from .GeneticSearch.TestBench import run_test
 
 
-run_test(4,350)
+run_test(10,300)
 
 
 

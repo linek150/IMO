@@ -71,7 +71,8 @@ class GeneticSearch:
                 if not(GeneticSearch.occur_in_individual(curr_abs_edge,individual_2)):
                     curr_idx_edge=(vtx_idx-1 if vtx_idx-1 >=0 else len(cycle)-1 ,vtx_idx)
                     edges_to_rm.append(curr_idx_edge)
-            GeneticSearch.remove_edges_from_cyc(edges_to_rm,cycle)
+            if edges_to_rm!=[]:
+                GeneticSearch.remove_edges_from_cyc(edges_to_rm,cycle)
         child.recreate_cycles(self.distance_matrix)
         return child
 
@@ -106,12 +107,14 @@ class GeneticSearch:
                 child = self.recombination(parent_1, parent_2)
                 if perform_ls:
                     child.cycle_1, child.cycle_2 = ls_steepest_list(child.cycle_1, child.cycle_2, self.distance_matrix)
+                    child.cyles=[child.cycle_1,child.cycle_2]
                 child.fitness = self.calculate_fitness(child.cycle_1, child.cycle_2)
                 if child not in self.population_list:
                     self.population_list.append(child)
             population_list_sorted = sorted(self.population_list, key=lambda x: x.fitness, reverse=True)
             best_individuals = population_list_sorted[:self.elite_population]
             self.population_list = best_individuals
+            #print(self.population_list[0].fitness)
         best = max(self.population_list, key=attrgetter('fitness'))
         return best.cycle_1, best.cycle_2
 
