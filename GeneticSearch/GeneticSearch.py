@@ -1,12 +1,13 @@
 import itertools
 import time
 from operator import attrgetter
+import copy
 
 import numpy as np
 
 from Common.CreateDistanceMatrix import load_data_from_file, create_distance_matrix
 from Common.Visualize import plot_results
-from Individual import Individual
+from .Individual import Individual
 from ImprovedLocalSearch.SteepestList import ls_steepest_list
 
 
@@ -59,7 +60,39 @@ class GeneticSearch:
         return itertools.zip_longest(fillvalue=fillvalue, *args)
 
     def recombination(self, individual_1, individual_2):
-        return individual_1
+        child=copy.copy(individual_1)
+        for cycle in child.cycles:
+            edges_to_rm=[]
+            for vtx_idx,vtx in enumerate(cycle):
+                curr_abs_edge=(cycle[vtx_idx-1],vtx)
+                if not(GeneticSearch.occur_in_individual(curr_abs_edge,individual_2)):
+                    curr_idx_edge=(vtx_idx-1 if vtx_idx-1 >=0 else len(cycle)-1 ,vtx_idx)
+                    edges_to_rm.append(curr_idx_edge)
+            GeneticSearch.remove_edges_from_cyc(edges_to_rm,cycle)
+        child.recreate_cycles(self.distance_matrix)
+        return child
+        
+            
+    @staticmethod
+    def remove_edges_from_cyc(edges,cycle):
+        prev_edge=edges[0]
+        cyc_copy=[]
+        for edge in edges[1:]:
+            if prev_edge[1]!=edge[0]:
+                cyc_copy.append(cycle[edge[0]])  
+            prev_edge=edge
+        for idx,elem in enumerate(cyc_copy):
+            cycle[idx]=elem
+        while len(cyc_copy)<len(cycle):
+            cycle.pop()
+    @staticmethod
+    def occur_in_individual(edge,individual):
+        for cycle in individual.cycles:
+            for vtx_idx,vtx in enumerate(cycle):
+                curr_edge=(cycle[vtx_idx-1],vtx)
+                if curr_edge==edge or curr_edge==tuple(reversed(edge)):
+                    return True
+        return False
 
     def search(self):
         start_time = time.time()
@@ -75,7 +108,11 @@ class GeneticSearch:
             population_list_sorted = sorted(self.population_list, key=lambda x: x.fitness, reverse=True)
             best_individuals = population_list_sorted[:self.elite_population]
             self.population_list = best_individuals
-        return max(self.population_list, key=attrgetter('fitness'))
+        best=max(self.population_list, key=attrgetter('fitness'))
+        return best.cycle_1,best.cycle_2
+def genetic_search(distance_matrix, runtime=5):
+    gen_search_obj=GeneticSearch(distance_matrix,runtime)
+    return gen_search_obj.search()
 
 
 # coordinates_a = load_data_from_file('../Heuristics/kroA100.tsp')

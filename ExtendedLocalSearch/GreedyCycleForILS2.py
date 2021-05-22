@@ -4,12 +4,14 @@ import numpy as np
 def greedy_cycle_for_ils2(cycle_1, cycle_2, distance_matrix):
     set_difference = set(range(distance_matrix.shape[0])) - set(cycle_1) - set(cycle_2)
     unused_vertex = list(set_difference)
-    which_cycle = 0
     while unused_vertex:
-        cycle = cycle_1 if which_cycle % 2 == 0 else cycle_2
+        cycle = cycle_1 if len(cycle_1)<len(cycle_2) else cycle_2
         smallest_length_increase = np.inf
         best_insert_idx = -1
         best_vertex = -1
+        if len(cycle)<1:
+            best_insert_idx=0
+            best_vertex=unused_vertex[0]
         for split_idx in range(len(cycle)):
             curr_distance = distance_matrix[cycle[split_idx - 1], cycle[split_idx]]
             for vertex in unused_vertex:
@@ -22,5 +24,4 @@ def greedy_cycle_for_ils2(cycle_1, cycle_2, distance_matrix):
                     best_vertex = vertex
         cycle.insert(best_insert_idx, best_vertex)
         unused_vertex.remove(best_vertex)
-        which_cycle += 1
     return cycle_1, cycle_2
